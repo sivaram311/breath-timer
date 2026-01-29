@@ -22,14 +22,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonString = prefs.getString('feedback_profile');
-    if (jsonString != null) {
-      setState(() {
-        profile = FeedbackProfile.fromJson(jsonString);
-        isLoading = false;
-      });
-    } else {
+    try {
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(seconds: 2),
+        onTimeout: () {
+          throw Exception('SharedPreferences timeout');
+        },
+      );
+      final jsonString = prefs.getString('feedback_profile');
+      if (jsonString != null) {
+        if (mounted) {
+          setState(() {
+            profile = FeedbackProfile.fromJson(jsonString);
+            isLoading = false;
+          });
+        }
+        return;
+      }
+    } catch (e) {
+      debugPrint('Error loading settings: $e');
+    }
+    
+    if (mounted) {
       setState(() => isLoading = false);
     }
   }
