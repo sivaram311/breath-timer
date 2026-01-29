@@ -4,6 +4,7 @@ import '../widgets/glass_card.dart';
 import '../models/preset.dart';
 import 'add_preset.dart';
 import 'breathing_exercise.dart';
+import 'settings_screen.dart';
 
 class PresetLibraryScreen extends StatefulWidget {
   const PresetLibraryScreen({super.key});
@@ -45,12 +46,26 @@ class _PresetLibraryScreenState extends State<PresetLibraryScreen> with TickerPr
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 40),
-                  Text(
-                    'Preset Library',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Preset Library',
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.settings, color: Colors.cyanAccent),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                          );
+                        },
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 20),
                   Expanded(
