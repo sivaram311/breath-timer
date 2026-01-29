@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/preset.dart';
+import '../services/feedback_service.dart';
 
 class BreathingExerciseScreen extends StatefulWidget {
   final Preset preset;
@@ -14,7 +15,8 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> with 
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   
-  String currentPhase = 'Ready?';
+  bool isStarted = false;
+  String currentPhase = 'Get Ready';
   int secondsRemaining = 0;
   Timer? _timer;
   
@@ -28,12 +30,11 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> with 
     _scaleAnimation = Tween<double>(begin: 0.6, end: 1.0).animate(
       CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
-    
-    Future.delayed(const Duration(seconds: 2), _startExercise);
   }
 
   void _startExercise() async {
-    while (mounted) {
+    setState(() => isStarted = true);
+    while (mounted && isStarted) {
       if (widget.preset.inhale > 0) await _runPhase('Inhale', widget.preset.inhale, true);
       if (widget.preset.hold > 0) await _runPhase('Hold', widget.preset.hold, false);
       if (widget.preset.exhale > 0) await _runPhase('Exhale', widget.preset.exhale, true, reverse: true);
@@ -43,6 +44,10 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> with 
 
   Future<void> _runPhase(String phase, int seconds, bool animate, {bool reverse = false}) async {
     if (!mounted) return;
+    
+    // Trigger Sensory Feedback
+    FeedbackService.playPhaseFeedback(phase);
+
     setState(() {
       currentPhase = phase;
       secondsRemaining = seconds;
@@ -121,37 +126,45 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> with 
                 const Spacer(),
                 ScaleTransition(
                   scale: _scaleAnimation,
-                  child: Container(
-                    width: 250,
-                    height: 250,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(color: phaseColor, width: 4),
-                      boxShadow: [
-                        BoxShadow(
-                          color: phaseColor.withOpacity(0.3),
-                          blurRadius: 30,
-                          spreadRadius: 10,
-                        ),
-                      ],
-                    ),
-                    child: Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            currentPhase,
-                            style: TextStyle(
-                              fontSize: 32,
-                              fontWeight: FontWeight.bold,
-                              color: phaseColor,
-                            ),
-                          ),
-                          Text(
-                            '$secondsRemaining',
-                            style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                  child: GestureDetector(
+                    onTap: isStarted ? null : _startExercise,
+                    child: Container(
+                      width: 250,
+                      height: 250,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: isStarted ? Colors.transparent : phaseColor.withOpacity(0.1),
+                        border: Border.all(color: phaseColor, width: 4),
+                        boxShadow: [
+                          BoxShadow(
+                            color: phaseColor.withOpacity(0.3),
+                            blurRadius: 30,
+                            spreadRadius: 10,
                           ),
                         ],
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (!isStarted)
+                              const Icon(Icons.play_arrow, size: 80, color: Colors.white)
+                            else ...[
+                              Text(
+                                currentPhase,
+                                style: TextStyle(
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: phaseColor,
+                                ),
+                              ),
+                              Text(
+                                '$secondsRemaining',
+                                style: const TextStyle(fontSize: 48, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
