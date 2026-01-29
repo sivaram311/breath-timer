@@ -33,6 +33,50 @@
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+  <script>
+    // Audio Context & Haptics for Breath Timer
+    let audioCtx = null;
+
+    window.initAudioContext = function() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        console.log("AudioContext initialized");
+      }
+      // Resume if suspended (browser policy)
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    };
+
+    window.playTone = function(freq, duration) {
+      if (!audioCtx) window.initAudioContext();
+      if (!audioCtx) return;
+
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + duration);
+    };
+
+    window.triggerVibrate = function(pattern) {
+      if (navigator.vibrate) {
+        navigator.vibrate(pattern);
+        console.log("Vibrating:", pattern);
+      } else {
+        console.log("Vibration API not supported");
+      }
+    };
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

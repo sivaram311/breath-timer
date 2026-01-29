@@ -1,46 +1,45 @@
-import 'package:vibration/vibration.dart';
-import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'js_interop.dart' as js;
 import 'dart:developer' as dev;
 
 class FeedbackService {
-  static final AudioPlayer _audioPlayer = AudioPlayer();
-
   static Future<void> playPhaseFeedback(String phase) async {
     dev.log('Triggering feedback for phase: $phase');
     
+    // Ensure AudioContext is ready (safe to call repeatedly)
+    if (kIsWeb) {
+      js.initAudio();
+    }
+
     switch (phase) {
       case 'Inhale':
-        _vibrate(pattern: [0, 100]); // Short single vibration
-        _beep(440); // Standard A4 (High)
+        _feedback(pattern: [0, 100], freq: 440, duration: 0.3);
         break;
       case 'Hold':
-        _vibrate(pattern: [0, 100, 100, 100]); // Quick double pulse
-        _beep(523); // C5 (Medium High)
+        _feedback(pattern: [0, 100, 100, 100], freq: 523, duration: 0.3);
         break;
       case 'Exhale':
-        _vibrate(pattern: [0, 300]); // Longer single heavy vibration
-        _beep(330); // E4 (Low Medium)
+        _feedback(pattern: [0, 300], freq: 330, duration: 0.6); 
         break;
-      case 'Hold Empty':
       case 'Hold (Empty)':
-        _vibrate(pattern: [0, 50, 50, 50, 50, 50]); // Triple quick pulses
-        _beep(261); // C4 (Low)
+      case 'Hold Empty':
+        _feedback(pattern: [0, 50, 50, 50, 50, 50], freq: 261, duration: 0.3);
+        break;
+      case 'Start':
+        // Silent or very short beep just to unlock AudioContext
+        _feedback(pattern: [0, 50], freq: 880, duration: 0.1); 
         break;
     }
   }
 
-  static void _vibrate({required List<int> pattern}) async {
-    if (await Vibration.hasVibrator()) {
-      Vibration.vibrate(pattern: pattern);
+  static void _feedback({required List<int> pattern, required double freq, required double duration}) {
+    if (kIsWeb) {
+      js.triggerVibrate(pattern);
+      js.playTone(freq, duration);
+    } else {
+      // Fallback for native (not implemented fully in this web-focused step)
+      HapticFeedback.mediumImpact(); 
     }
-  }
-
-  static void _beep(double frequency) async {
-    // Note: Generating real-time waveforms is complex in Flutter without heavy assets.
-    // For this implementation, we simulate using a short premium asset sound 
-    // or log the attempt if assets aren't present.
-    // In a real mobile app, we'd include short .wav files for each note.
-    dev.log('Playing beep for frequency: $frequency');
-    // Using a system sound as a placeholder or could use Source.asset('beeps/$phase.mp3')
   }
 }

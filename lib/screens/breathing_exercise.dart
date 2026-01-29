@@ -33,6 +33,9 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> with 
   }
 
   void _startExercise() async {
+    // Explicitly initialize/resume audio context on user gesture
+    FeedbackService.playPhaseFeedback('Start'); // Dummy phase to unlock
+    
     setState(() => isStarted = true);
     while (mounted && isStarted) {
       if (widget.preset.inhale > 0) await _runPhase('Inhale', widget.preset.inhale, true);
