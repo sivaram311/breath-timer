@@ -1,6 +1,8 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'js_interop.dart' as js;
+import 'package:vibration/vibration.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'js_interop_stub.dart'
+    if (dart.library.js_interop) 'js_interop.dart' as js;
 import 'dart:developer' as dev;
 import '../models/feedback_profile.dart';
 
@@ -58,7 +60,8 @@ class FeedbackService {
       js.triggerVibrate(pattern);
       js.playTone(freq, duration);
     } else {
-      // Fallback for native (not implemented fully in this web-focused step)
+      Vibration.vibrate(pattern: pattern);
+      // HapticFeedback as a secondary signal or if vibration is not supported
       HapticFeedback.mediumImpact(); 
     }
   }
