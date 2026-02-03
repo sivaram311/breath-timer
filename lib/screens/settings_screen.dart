@@ -54,7 +54,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     FeedbackService.updateProfile(profile); // Notify service
   }
 
-  Widget _buildSection(String title, String phase, String currentVibe, double currentFreq, Function(String, double) onChanged) {
+  Widget _buildSection(String title, String phase, String currentVibe, String currentBeep, double currentFreq, Function(String, String, double) onChanged) {
     return GlassCard(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -78,9 +78,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ],
                   onChanged: (val) {
                     if (val != null) {
-                      setState(() => onChanged(val, currentFreq));
+                      setState(() => onChanged(val, currentBeep, currentFreq));
                       _saveSettings();
-                      FeedbackService.testFeedback(val, currentFreq);
+                      FeedbackService.testFeedback(val, currentBeep, currentFreq);
+                    }
+                  },
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Text('Beep Pattern: '),
+                const SizedBox(width: 8),
+                DropdownButton<String>(
+                  value: currentBeep,
+                  dropdownColor: Colors.grey[900],
+                  items: const [
+                    DropdownMenuItem(value: 'none', child: Text('None')),
+                    DropdownMenuItem(value: 'single', child: Text('Single')),
+                    DropdownMenuItem(value: 'double', child: Text('Double')),
+                    DropdownMenuItem(value: 'triple', child: Text('Triple')),
+                  ],
+                  onChanged: (val) {
+                    if (val != null) {
+                      setState(() => onChanged(currentVibe, val, currentFreq));
+                      _saveSettings();
+                      FeedbackService.testFeedback(currentVibe, val, currentFreq);
                     }
                   },
                 ),
@@ -95,8 +119,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               value: currentFreq,
               label: '${currentFreq.toInt()} Hz',
               onChanged: (val) {
-                setState(() => onChanged(currentVibe, val));
-                FeedbackService.testFeedback(currentVibe, val);
+                setState(() => onChanged(currentVibe, currentBeep, val));
+                FeedbackService.testFeedback(currentVibe, currentBeep, val);
               },
               onChangeEnd: (val) => _saveSettings(),
             ),
@@ -119,20 +143,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(24.0),
         child: Column(
           children: [
-            _buildSection('Inhale Phase', 'inhale', profile.inhaleVibe, profile.inhaleBeepFreq, (v, f) {
-              profile.inhaleVibe = v; profile.inhaleBeepFreq = f;
+            _buildSection('Inhale Phase', 'inhale', profile.inhaleVibe, profile.inhaleBeepPattern, profile.inhaleBeepFreq, (v, b, f) {
+              profile.inhaleVibe = v; profile.inhaleBeepPattern = b; profile.inhaleBeepFreq = f;
             }),
             const SizedBox(height: 16),
-            _buildSection('Hold Phase', 'hold', profile.holdVibe, profile.holdBeepFreq, (v, f) {
-              profile.holdVibe = v; profile.holdBeepFreq = f;
+            _buildSection('Hold Phase', 'hold', profile.holdVibe, profile.holdBeepPattern, profile.holdBeepFreq, (v, b, f) {
+              profile.holdVibe = v; profile.holdBeepPattern = b; profile.holdBeepFreq = f;
             }),
             const SizedBox(height: 16),
-            _buildSection('Exhale Phase', 'exhale', profile.exhaleVibe, profile.exhaleBeepFreq, (v, f) {
-              profile.exhaleVibe = v; profile.exhaleBeepFreq = f;
+            _buildSection('Exhale Phase', 'exhale', profile.exhaleVibe, profile.exhaleBeepPattern, profile.exhaleBeepFreq, (v, b, f) {
+              profile.exhaleVibe = v; profile.exhaleBeepPattern = b; profile.exhaleBeepFreq = f;
             }),
             const SizedBox(height: 16),
-            _buildSection('Hold Empty Phase', 'holdEmpty', profile.holdEmptyVibe, profile.holdEmptyBeepFreq, (v, f) {
-              profile.holdEmptyVibe = v; profile.holdEmptyBeepFreq = f;
+            _buildSection('Hold Empty Phase', 'holdEmpty', profile.holdEmptyVibe, profile.holdEmptyBeepPattern, profile.holdEmptyBeepFreq, (v, b, f) {
+              profile.holdEmptyVibe = v; profile.holdEmptyBeepPattern = b; profile.holdEmptyBeepFreq = f;
             }),
           ],
         ),

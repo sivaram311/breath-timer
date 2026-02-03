@@ -6,6 +6,11 @@ class FeedbackProfile {
   String exhaleVibe;
   String holdEmptyVibe;
   
+  String inhaleBeepPattern; // 'none', 'single', 'double', 'triple'
+  String holdBeepPattern;
+  String exhaleBeepPattern;
+  String holdEmptyBeepPattern;
+  
   double inhaleBeepFreq;
   double holdBeepFreq;
   double exhaleBeepFreq;
@@ -16,6 +21,10 @@ class FeedbackProfile {
     this.holdVibe = 'pulse',
     this.exhaleVibe = 'medium',
     this.holdEmptyVibe = 'short',
+    this.inhaleBeepPattern = 'single',
+    this.holdBeepPattern = 'single',
+    this.exhaleBeepPattern = 'double',
+    this.holdEmptyBeepPattern = 'single',
     this.inhaleBeepFreq = 440,
     this.holdBeepFreq = 523,
     this.exhaleBeepFreq = 330,
@@ -28,6 +37,10 @@ class FeedbackProfile {
       'holdVibe': holdVibe,
       'exhaleVibe': exhaleVibe,
       'holdEmptyVibe': holdEmptyVibe,
+      'inhaleBeepPattern': inhaleBeepPattern,
+      'holdBeepPattern': holdBeepPattern,
+      'exhaleBeepPattern': exhaleBeepPattern,
+      'holdEmptyBeepPattern': holdEmptyBeepPattern,
       'inhaleBeepFreq': inhaleBeepFreq,
       'holdBeepFreq': holdBeepFreq,
       'exhaleBeepFreq': exhaleBeepFreq,
@@ -41,6 +54,10 @@ class FeedbackProfile {
       holdVibe: map['holdVibe'] ?? 'pulse',
       exhaleVibe: map['exhaleVibe'] ?? 'medium',
       holdEmptyVibe: map['holdEmptyVibe'] ?? 'short',
+      inhaleBeepPattern: map['inhaleBeepPattern'] ?? 'single',
+      holdBeepPattern: map['holdBeepPattern'] ?? 'single',
+      exhaleBeepPattern: map['exhaleBeepPattern'] ?? 'double',
+      holdEmptyBeepPattern: map['holdEmptyBeepPattern'] ?? 'single',
       inhaleBeepFreq: (map['inhaleBeepFreq'] ?? 440).toDouble(),
       holdBeepFreq: (map['holdBeepFreq'] ?? 523).toDouble(),
       exhaleBeepFreq: (map['exhaleBeepFreq'] ?? 330).toDouble(),
