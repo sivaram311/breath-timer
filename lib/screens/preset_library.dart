@@ -1,5 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_framework.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../widgets/glass_card.dart';
 import '../models/preset.dart';
 import 'add_preset.dart';
@@ -15,14 +16,75 @@ class PresetLibraryScreen extends StatefulWidget {
 
 class _PresetLibraryScreenState extends State<PresetLibraryScreen> with TickerProviderStateMixin {
   bool isWiggleMode = false;
-  List<Preset> presets = [
+  bool isLoading = true;
+  List<Preset> presets = [];
+
+  List<Preset> get _defaultPresets => [
     Preset(name: 'Box Breathing', inhale: 4, hold: 4, exhale: 4, holdEmpty: 4, color: Colors.cyan),
     Preset(name: 'Deep Calm', inhale: 4, hold: 7, exhale: 8, holdEmpty: 0, color: Colors.indigo),
     Preset(name: 'Energize', inhale: 6, hold: 0, exhale: 2, holdEmpty: 0, color: Colors.orange),
   ];
 
   @override
+  void initState() {
+    super.initState();
+    _loadPresets();
+  }
+
+  Future<void> _loadPresets() async {
+    try {
+      final prefs = await SharedPreferences.getInstance().timeout(
+        const Duration(seconds: 2),
+        onTimeout: () {
+          throw Exception('SharedPreferences timeout');
+        },
+      );
+      final presetsJson = prefs.getStringList('presets');
+      if (presetsJson != null && presetsJson.isNotEmpty) {
+        setState(() {
+          presets = presetsJson.map((jsonString) {
+            final map = json.decode(jsonString) as Map<String, dynamic>;
+            return Preset.fromMap(map);
+          }).toList();
+          isLoading = false;
+        });
+      } else {
+        // No saved presets, use defaults
+        setState(() {
+          presets = _defaultPresets;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error loading presets: $e');
+      // Fallback to defaults on error
+      setState(() {
+        presets = _defaultPresets;
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _savePresets() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final presetsJson = presets.map((preset) => json.encode(preset.toMap())).toList();
+      await prefs.setStringList('presets', presetsJson);
+    } catch (e) {
+      debugPrint('Error saving presets: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
     return Scaffold(
       body: Stack(
         children: [
@@ -148,6 +210,7 @@ class _PresetLibraryScreenState extends State<PresetLibraryScreen> with TickerPr
                                         presets.removeAt(index);
                                         if (presets.isEmpty) isWiggleMode = false;
                                       });
+                                      _savePresets();
                                     },
                                   ),
                                 ),
@@ -174,6 +237,7 @@ class _PresetLibraryScreenState extends State<PresetLibraryScreen> with TickerPr
             setState(() {
               presets.add(result);
             });
+            _savePresets();
           }
         },
         backgroundColor: Colors.cyanAccent,
