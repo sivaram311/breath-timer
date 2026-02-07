@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:vibration/vibration.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'js_interop_stub.dart'
     if (dart.library.js_interop) 'js_interop.dart' as js;
