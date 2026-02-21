@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'theme/app_theme.dart';
 import 'screens/preset_library.dart';
+import 'services/widget_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await WidgetService.initialize();
   runApp(const BreathTimerApp());
 }
 

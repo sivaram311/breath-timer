@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:minWidth="120dp"
+    android:minHeight="80dp"
+    android:updatePeriodMillis="0"
+    android:initialLayout="@layout/breathing_widget_aod"
+    android:configure="com.example.breath_timer.BreathingWidgetProvider"
+    android:resizeMode="horizontal|vertical"
+    android:widgetCategory="home_screen"
+    android:previewImage="@mipmap/ic_launcher">
+
+    <meta-data
+        android:name="android.appwidget.provider"
+        android:resource="@xml/breathing_widget_aod_info" />
+
+</appwidget-provider>

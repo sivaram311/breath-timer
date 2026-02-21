@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../models/preset.dart';
 import '../services/feedback_service.dart';
+import '../services/widget_service.dart';
+import 'breathing_exercise_fullscreen.dart';
 
 class BreathingExerciseScreen extends StatefulWidget {
   final Preset preset;
@@ -55,6 +57,9 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> with 
       currentPhase = phase;
       secondsRemaining = seconds;
     });
+
+    // Update widget with current phase
+    WidgetService.updateWidgetPhase(phase);
 
     if (animate) {
       _controller.duration = Duration(seconds: seconds);
@@ -119,12 +124,25 @@ class _BreathingExerciseScreenState extends State<BreathingExerciseScreen> with 
           SafeArea(
             child: Column(
               children: [
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () => Navigator.pop(context),
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.fullscreen),
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => FullscreenBreathingExerciseScreen(preset: widget.preset),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
                 ),
                 const Spacer(),
                 ScaleTransition(

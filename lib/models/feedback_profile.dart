@@ -16,6 +16,8 @@ class FeedbackProfile {
   double exhaleBeepFreq;
   double holdEmptyBeepFreq;
 
+  bool enableAODWidget; // Always-on display widget
+
   FeedbackProfile({
     this.inhaleVibe = 'short',
     this.holdVibe = 'pulse',
@@ -29,6 +31,7 @@ class FeedbackProfile {
     this.holdBeepFreq = 523,
     this.exhaleBeepFreq = 330,
     this.holdEmptyBeepFreq = 261,
+    this.enableAODWidget = false,
   });
 
   Map<String, dynamic> toMap() {
@@ -45,6 +48,7 @@ class FeedbackProfile {
       'holdBeepFreq': holdBeepFreq,
       'exhaleBeepFreq': exhaleBeepFreq,
       'holdEmptyBeepFreq': holdEmptyBeepFreq,
+      'enableAODWidget': enableAODWidget,
     };
   }
 
@@ -62,6 +66,7 @@ class FeedbackProfile {
       holdBeepFreq: (map['holdBeepFreq'] ?? 523).toDouble(),
       exhaleBeepFreq: (map['exhaleBeepFreq'] ?? 330).toDouble(),
       holdEmptyBeepFreq: (map['holdEmptyBeepFreq'] ?? 261).toDouble(),
+      enableAODWidget: map['enableAODWidget'] ?? false,
     );
   }
 

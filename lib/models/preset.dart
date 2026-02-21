@@ -7,6 +7,7 @@ class Preset {
   final int exhale;
   final int holdEmpty;
   final Color color;
+  final bool isFavorite;
 
   Preset({
     required this.name,
@@ -15,6 +16,7 @@ class Preset {
     required this.exhale,
     required this.holdEmpty,
     this.color = Colors.cyanAccent,
+    this.isFavorite = false,
   });
 
   String get pattern => '$inhale-$hold-$exhale-$holdEmpty';
@@ -27,6 +29,7 @@ class Preset {
       'exhale': exhale,
       'holdEmpty': holdEmpty,
       'color': color.value,
+      'isFavorite': isFavorite,
     };
   }
 
@@ -38,6 +41,7 @@ class Preset {
       exhale: map['exhale'],
       holdEmpty: map['holdEmpty'],
       color: Color(map['color']),
+      isFavorite: map['isFavorite'] ?? false,
     );
   }
 }

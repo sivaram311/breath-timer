@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/feedback_profile.dart';
 import '../services/feedback_service.dart';
+import '../services/widget_service.dart';
 import '../widgets/glass_card.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -52,6 +53,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('feedback_profile', profile.toJson());
     FeedbackService.updateProfile(profile); // Notify service
+  }
+
+  Future<void> _forceWidgetUpdate() async {
+    await WidgetService.forceUpdateWidget();
   }
 
   Widget _buildSection(String title, String phase, String currentVibe, String currentBeep, double currentFreq, Function(String, String, double) onChanged) {
@@ -158,6 +163,40 @@ class _SettingsScreenState extends State<SettingsScreen> {
             _buildSection('Hold Empty Phase', 'holdEmpty', profile.holdEmptyVibe, profile.holdEmptyBeepPattern, profile.holdEmptyBeepFreq, (v, b, f) {
               profile.holdEmptyVibe = v; profile.holdEmptyBeepPattern = b; profile.holdEmptyBeepFreq = f;
             }),
+            const SizedBox(height: 24),
+            GlassCard(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Widget Settings', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.cyanAccent)),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text('Always-On Display Widget'),
+                        Switch(
+                          value: profile.enableAODWidget,
+                          onChanged: (value) async {
+                            setState(() => profile.enableAODWidget = value);
+                            await _saveSettings();
+                            // Force widget update when AOD mode changes
+                            await _forceWidgetUpdate();
+                          },
+                          activeColor: Colors.cyanAccent,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Enable simplified widget for always-on displays. Uses less battery but shows basic breathing phase.',
+                      style: TextStyle(fontSize: 12, color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
